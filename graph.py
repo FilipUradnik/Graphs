@@ -33,7 +33,6 @@ class Graph:
     def __init__(self, N):
         self.N = N
         self.V = [Vertex(i) for i in range(N)]
-        self.distances_found = False
 
     def connect(self, v, w):
         """Connects two vertices with an edge
