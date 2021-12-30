@@ -96,6 +96,15 @@ class Graph:
     def __repr__(self):
         return f"{self.N}-Graph(" + ", ".join([str(x) for x in self.E if x.connected]) + ")"
 
+    def __eq__(self, other):
+        if isinstance(other, Graph):
+            return self.export_graph_data() == other.export_graph_data()
+
+        if isinstance(other, dict):
+            return self.export_graph_data() == other
+
+        return False
+
     def connect(self, v, w, weight=1):
         """Connects two vertices with an edge
 
