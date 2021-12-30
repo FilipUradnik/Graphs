@@ -115,9 +115,9 @@ class Graph:
         past[v.index] = True
         for x in v.neighbors:
             if past[x.index] is None:
-                self.dfs(x, past=past)
+                for y in self.dfs(x, past=past):yield y
 
-    def bfs(self, v=0, queue=None):
+    def bfs(self, v=None, queue=None):
         """Breadth first search (generator)
 
         Args:
@@ -127,16 +127,18 @@ class Graph:
         Yields:
             Vertex: Vertices of the component one by one
         """
-        v = self.vertex(v)
+        if v is None:v = self.V[0]
+
         if queue is None:
             queue = Queue()
+
         past = [None for _ in range(self.N)]
         queue.put(v)
         past[v.index] = True
         while not queue.empty():
             v = queue.get()
             yield v
-            for x in v.E:
+            for x in v.neighbors:
                 if not past[x.index]:
                     past[x.index] = True
                     queue.put(x)
@@ -194,4 +196,8 @@ if __name__ == '__main__':
     G.connect(G.vertex(3), G.vertex(4))
     G.connect(G.vertex(3), G.vertex(5))
     G.connect(G.vertex(4), G.vertex(5))
-    
+    print("DFS")
+    for x in G.dfs():print(x)
+    print(); print('BFS')
+    for x in G.bfs():print(x)
+    print(); print('BFS')
