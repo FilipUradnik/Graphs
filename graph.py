@@ -48,7 +48,7 @@ class Vertex:
 
     @property
     def neighbors(self):
-        return [edge.other(self.index) for edge in self.E if not edge is None]
+        return [edge.forward(self.index) for edge in self.E if not edge is None]
 
 class Graph:
     def __init__(self, N, values=[], multigraph=False, oriented=False, weighted=False):
