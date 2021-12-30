@@ -10,6 +10,10 @@ class Edge:
         self.w = w
         self.oriented = oriented
 
+    def __repr__(self):
+        if not self.connected:return "Edge(x)"
+        return f"{self.weight}-Edge({self.v.index}, {self.w.index})"
+
     def forward(self, v):
         if not self.connected:return None
         if self.v == v:return self.w
@@ -48,12 +52,12 @@ class Vertex:
     def __repr__(self):
         return "Vertex(" + str(self.index) + ")"
 
-    @property
-    def neighbors(self):
+    def neighbors(self, distance=False):
+        if distance:return [(edge.forward(self.index), edge.weight) for edge in self.E if not edge.forward(self.index) is None]
         return [edge.forward(self.index) for edge in self.E if not edge.forward(self.index) is None]
 
-    @property
-    def backtracks(self):
+    def backtracks(self, distance=False):
+        if distance:return [(edge.backward(self.index), edge.weight) for edge in self.E if not edge.backward(self.index) is None]
         return [edge.backward(self.index) for edge in self.E if not edge.backward(self.index) is None]
 
 class Graph:
@@ -66,6 +70,9 @@ class Graph:
         if len(values) != N:values = [i for i in range(N)]
         self.V = [Vertex(i, values[i]) for i in range(N)]
 
+    def __repr__(self):
+        return f"{self.N}-Graph(" + ", ".join([str(x) for x in self.E if x.connected]) + ")"
+
     def connect(self, v, w, weight=1):
         """Connects two vertices with an edge
 
@@ -73,8 +80,8 @@ class Graph:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
-        if not self.is_oriented:weight = 1
-        if self.is_multigraph or (not w in v.neighbors and not w == v):
+        if not self.is_weighted:weight = 1
+        if self.is_multigraph or (not w in v.neighbors() and not w == v):
             edge = Edge(v, w, self.is_oriented, len(self.E), weight)
             self.E.append(edge)
             v.E.append(edge)
@@ -89,20 +96,12 @@ class Graph:
         Returns:
             Vertex: Vertex with the given index
         """
-        if index is None and value is None:return None
+        if not index is None and index < self.N:return self.V[index]
+        if not value is None:
+            for x in self.V:
+                if x.value == value: return x
 
-        if not index is None:return self.V[index]
-
-    def get_neighbors(self, v):
-        """Returns neighbors of a given vertex
-
-        Args:
-            v (Vertex)
-
-        Returns:
-            list: A list of vertices neighboring v
-        """
-        return 
+        return None
 
     def dfs(self, v=None, past=None):
         """Depth first search (generator)
@@ -119,11 +118,11 @@ class Graph:
             past = [None for _ in range(self.N)]
         yield v
         past[v.index] = True
-        for x in v.neighbors:
+        for x in v.neighbors():
             if past[x.index] is None:
                 for y in self.dfs(x, past=past):yield y
 
-    def bfs(self, v=None, queue=None):
+    def bfs(self, v=None, priority=None):
         """Breadth first search (generator)
 
         Args:
@@ -135,19 +134,26 @@ class Graph:
         """
         if v is None:v = self.V[0]
 
-        if queue is None:
+        if priority is None:
             queue = Queue()
+            queue.put(v)
+        else:
+            queue = PriorityQueue()
+            queue.put((priority(v), v))
 
         past = [None for _ in range(self.N)]
-        queue.put(v)
         past[v.index] = True
+
         while not queue.empty():
             v = queue.get()
+            if not priority is None:v = v[1]
             yield v
-            for x in v.neighbors:
+            for x in v.neighbors():
                 if not past[x.index]:
                     past[x.index] = True
-                    queue.put(x)
+
+                    if priority is None:queue.put(x)
+                    else:queue.put((priority(x), x))
 
     def find_distance(self, v, u=None):
         """Finds distance between two vertices, sets the value of "distance" of every vertex to its distance from v
@@ -159,17 +165,16 @@ class Graph:
         Returns:
             int: Distance from u to v. None if there is no path between them or u wasn't specified
         """
-        v, u = self.vertex(v), self.vertex(u)
         for x in self.V:
             x.distance = None
         v.distance = 0
 
-        for w in self.bfs(v):
-            for x in w.E:
-                if x.distance is None:
-                    x.distance = x.distance + 1
-                    if (not u is None) and x == u:
-                        return w.distance
+        for w in self.bfs(v, lambda x: x.distance):
+            if (not u is None) and w == u:
+                return w.distance
+            for vertex, weight in w.neighbors(True):
+                if vertex.distance is None or vertex.distance > w.distance + weight:
+                    vertex.distance = w.distance + weight
 
     def find_path(self, v, u):
         """Finds the shortest path between two vertices
@@ -186,23 +191,27 @@ class Graph:
             return None
 
         r = [u]
-        while d != 0:
-            u = min(u.E)
+        while v != u:
+            #only choose from those neighbors, whose paths are optimal 
+            u = min([x[0] for x in u.backtracks(True) if u.distance - x[0].distance == x[1]], key=lambda x: x.distance)
             d = u.distance
             r.append(u)
 
         return r[::-1]
 
 if __name__ == '__main__':
-    G = Graph(6)
+    G = Graph(6, weighted=True)
     G.connect(G.vertex(0), G.vertex(1))
     G.connect(G.vertex(0), G.vertex(2))
     G.connect(G.vertex(0), G.vertex(3))
     G.connect(G.vertex(3), G.vertex(4))
     G.connect(G.vertex(3), G.vertex(5))
     G.connect(G.vertex(4), G.vertex(5))
+    print(G); print("")
     print("DFS")
     for x in G.dfs():print(x)
-    print(); print('BFS')
+    print(""); print('BFS')
     for x in G.bfs():print(x)
-    print(); print('BFS')
+    print(); print('Distance')
+    print(G.find_distance(G.vertex(0), G.vertex(5)))
+    print(G.find_path(G.vertex(0), G.vertex(5)))
