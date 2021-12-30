@@ -26,6 +26,12 @@ class Edge:
         elif self.oriented: return None
         else:return self.w
 
+    def export(self):
+        return {
+            "weight": self.weight,
+            "v": self.v.index,
+            "w": self.w.index
+        }
 class Vertex:
     
     def __init__(self, index, value):
@@ -199,6 +205,36 @@ class Graph:
 
         return r[::-1]
 
+    def export_graph_data(self):
+        parameters = {
+            "N": self.N,
+            "is_weighted": self.is_weighted,
+            "is_multigraph": self.is_multigraph,
+            "is_oriented": self.is_oriented
+        }
+        vertices = [v.value for v in self.V]
+        edges = [e.export() for e in self.E if e.connected]
+        return {"parameters": parameters, "vertices": vertices, "edges": edges}
+
+    def import_graph_data(self, data):
+        if "parameters" in data.keys():
+            parameters = data["parameters"]
+            if "N" in parameters.keys():self.N = parameters["N"]
+            if "is_weighted" in parameters.keys():self.is_weighted = parameters["is_weighted"]
+            if "is_multigraph" in parameters.keys():self.is_multigraph = parameters["is_multigraph"]
+            if "is_oriented" in parameters.keys():self.is_oriented = parameters["is_oriented"]
+        
+        if "vertices" in data.keys():
+            if self.N != len(data["vertices"]):raise Exception
+            self.V = [Vertex(i, data["vertices"][i]) for i in range(self.N)]
+
+            if "edges" in data.keys():
+                self.E = []
+                for i in data["edges"]:
+                    self.connect(self.vertex(i["v"]), self.vertex(i["w"]), i["weight"])
+                    
+        elif "edges" in data.keys(): raise Exception
+
 if __name__ == '__main__':
     G = Graph(6, weighted=True)
     G.connect(G.vertex(0), G.vertex(1))
@@ -215,3 +251,11 @@ if __name__ == '__main__':
     print(); print('Distance')
     print(G.find_distance(G.vertex(0), G.vertex(5)))
     print(G.find_path(G.vertex(0), G.vertex(5)))
+    print(); print('Export')
+    print(G.export_graph_data())
+    print(); print('Import')
+    H = Graph(0)
+    H.import_graph_data(G.export_graph_data())
+    print(G.export_graph_data() == H.export_graph_data())
+
+    
