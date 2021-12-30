@@ -1,5 +1,6 @@
 from queue import Queue, PriorityQueue
 
+
 class Edge:
 
     def __init__(self, v, w, oriented, index, weight=1):
@@ -11,20 +12,29 @@ class Edge:
         self.oriented = oriented
 
     def __repr__(self):
-        if not self.connected:return "Edge(x)"
+        if not self.connected:
+            return "Edge(x)"
         return f"{self.weight}-Edge({self.v.index}, {self.w.index})"
 
     def forward(self, v):
-        if not self.connected:return None
-        if self.v == v:return self.w
-        elif self.oriented: return None
-        else:return self.v
+        if not self.connected:
+            return None
+        if self.v == v:
+            return self.w
+        elif self.oriented:
+            return None
+        else:
+            return self.v
 
     def backward(self, v):
-        if not self.connected:return None
-        if self.w == v:return self.v
-        elif self.oriented: return None
-        else:return self.w
+        if not self.connected:
+            return None
+        if self.w == v:
+            return self.v
+        elif self.oriented:
+            return None
+        else:
+            return self.w
 
     def export(self):
         return {
@@ -32,8 +42,10 @@ class Edge:
             "v": self.v.index,
             "w": self.w.index
         }
+
+
 class Vertex:
-    
+
     def __init__(self, index, value):
         self.index = index
         self.value = value
@@ -52,19 +64,23 @@ class Vertex:
         return self.distance < other.distance
 
     def __eq__(self, other):
-        if isinstance(other, int):return self.index == other
+        if isinstance(other, int):
+            return self.index == other
         return self.index == other.index
 
     def __repr__(self):
         return "Vertex(" + str(self.index) + ")"
 
     def neighbors(self, distance=False):
-        if distance:return [(edge.forward(self.index), edge.weight) for edge in self.E if not edge.forward(self.index) is None]
+        if distance:
+            return [(edge.forward(self.index), edge.weight) for edge in self.E if not edge.forward(self.index) is None]
         return [edge.forward(self.index) for edge in self.E if not edge.forward(self.index) is None]
 
     def backtracks(self, distance=False):
-        if distance:return [(edge.backward(self.index), edge.weight) for edge in self.E if not edge.backward(self.index) is None]
+        if distance:
+            return [(edge.backward(self.index), edge.weight) for edge in self.E if not edge.backward(self.index) is None]
         return [edge.backward(self.index) for edge in self.E if not edge.backward(self.index) is None]
+
 
 class Graph:
     def __init__(self, N, values=[], multigraph=False, oriented=False, weighted=False):
@@ -73,7 +89,8 @@ class Graph:
         self.is_multigraph = multigraph
         self.is_oriented = oriented
         self.is_weighted = weighted
-        if len(values) != N:values = [i for i in range(N)]
+        if len(values) != N:
+            values = [i for i in range(N)]
         self.V = [Vertex(i, values[i]) for i in range(N)]
 
     def __repr__(self):
@@ -86,7 +103,8 @@ class Graph:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
-        if not self.is_weighted:weight = 1
+        if not self.is_weighted:
+            weight = 1
         if self.is_multigraph or (not w in v.neighbors() and not w == v):
             edge = Edge(v, w, self.is_oriented, len(self.E), weight)
             self.E.append(edge)
@@ -102,10 +120,12 @@ class Graph:
         Returns:
             Vertex: Vertex with the given index
         """
-        if not index is None and index < self.N:return self.V[index]
+        if not index is None and index < self.N:
+            return self.V[index]
         if not value is None:
             for x in self.V:
-                if x.value == value: return x
+                if x.value == value:
+                    return x
 
         return None
 
@@ -118,7 +138,8 @@ class Graph:
         Yields:
             Vertex: Vertices of the component one by one
         """
-        if v is None:v = self.V[0]
+        if v is None:
+            v = self.V[0]
 
         if past is None:
             past = [None for _ in range(self.N)]
@@ -126,7 +147,8 @@ class Graph:
         past[v.index] = True
         for x in v.neighbors():
             if past[x.index] is None:
-                for y in self.dfs(x, past=past):yield y
+                for y in self.dfs(x, past=past):
+                    yield y
 
     def bfs(self, v=None, priority=None):
         """Breadth first search (generator)
@@ -138,7 +160,8 @@ class Graph:
         Yields:
             Vertex: Vertices of the component one by one
         """
-        if v is None:v = self.V[0]
+        if v is None:
+            v = self.V[0]
 
         if priority is None:
             queue = Queue()
@@ -152,14 +175,17 @@ class Graph:
 
         while not queue.empty():
             v = queue.get()
-            if not priority is None:v = v[1]
+            if not priority is None:
+                v = v[1]
             yield v
             for x in v.neighbors():
                 if not past[x.index]:
                     past[x.index] = True
 
-                    if priority is None:queue.put(x)
-                    else:queue.put((priority(x), x))
+                    if priority is None:
+                        queue.put(x)
+                    else:
+                        queue.put((priority(x), x))
 
     def find_distance(self, v, u=None):
         """Finds distance between two vertices, sets the value of "distance" of every vertex to its distance from v
@@ -198,8 +224,9 @@ class Graph:
 
         r = [u]
         while v != u:
-            #only choose from those neighbors, whose paths are optimal 
-            u = min([x[0] for x in u.backtracks(True) if u.distance - x[0].distance == x[1]], key=lambda x: x.distance)
+            # only choose from those neighbors, whose paths are optimal
+            u = min([x[0] for x in u.backtracks(True) if u.distance -
+                    x[0].distance == x[1]], key=lambda x: x.distance)
             d = u.distance
             r.append(u)
 
@@ -219,21 +246,29 @@ class Graph:
     def import_graph_data(self, data):
         if "parameters" in data.keys():
             parameters = data["parameters"]
-            if "N" in parameters.keys():self.N = parameters["N"]
-            if "is_weighted" in parameters.keys():self.is_weighted = parameters["is_weighted"]
-            if "is_multigraph" in parameters.keys():self.is_multigraph = parameters["is_multigraph"]
-            if "is_oriented" in parameters.keys():self.is_oriented = parameters["is_oriented"]
-        
+            if "N" in parameters.keys():
+                self.N = parameters["N"]
+            if "is_weighted" in parameters.keys():
+                self.is_weighted = parameters["is_weighted"]
+            if "is_multigraph" in parameters.keys():
+                self.is_multigraph = parameters["is_multigraph"]
+            if "is_oriented" in parameters.keys():
+                self.is_oriented = parameters["is_oriented"]
+
         if "vertices" in data.keys():
-            if self.N != len(data["vertices"]):raise Exception
+            if self.N != len(data["vertices"]):
+                raise Exception
             self.V = [Vertex(i, data["vertices"][i]) for i in range(self.N)]
 
             if "edges" in data.keys():
                 self.E = []
                 for i in data["edges"]:
-                    self.connect(self.vertex(i["v"]), self.vertex(i["w"]), i["weight"])
-                    
-        elif "edges" in data.keys(): raise Exception
+                    self.connect(self.vertex(i["v"]),
+                                 self.vertex(i["w"]), i["weight"])
+
+        elif "edges" in data.keys():
+            raise Exception
+
 
 if __name__ == '__main__':
     G = Graph(6, weighted=True)
@@ -243,19 +278,24 @@ if __name__ == '__main__':
     G.connect(G.vertex(3), G.vertex(4))
     G.connect(G.vertex(3), G.vertex(5))
     G.connect(G.vertex(4), G.vertex(5))
-    print(G); print("")
+    print(G)
+    print("")
     print("DFS")
-    for x in G.dfs():print(x)
-    print(""); print('BFS')
-    for x in G.bfs():print(x)
-    print(); print('Distance')
+    for x in G.dfs():
+        print(x)
+    print("")
+    print('BFS')
+    for x in G.bfs():
+        print(x)
+    print()
+    print('Distance')
     print(G.find_distance(G.vertex(0), G.vertex(5)))
     print(G.find_path(G.vertex(0), G.vertex(5)))
-    print(); print('Export')
+    print()
+    print('Export')
     print(G.export_graph_data())
-    print(); print('Import')
+    print()
+    print('Import')
     H = Graph(0)
     H.import_graph_data(G.export_graph_data())
     print(G.export_graph_data() == H.export_graph_data())
-
-    
