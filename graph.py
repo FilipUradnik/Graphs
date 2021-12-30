@@ -67,7 +67,7 @@ class Graph:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
-        if self.is_multigraph or not w in v.neighbors():
+        if self.is_multigraph or (not w in v.neighbors() and not w == v):
             edge = Edge(v, w, self.is_oriented, len(self.E))
             self.E.append(edge)
             v.E.append(edge)
@@ -184,3 +184,13 @@ class Graph:
             r.append(u)
 
         return r[::-1]
+
+if __name__ == '__main__':
+    G = Graph(6)
+    G.connect(G.vertex(0), G.vertex(1))
+    G.connect(G.vertex(0), G.vertex(2))
+    G.connect(G.vertex(0), G.vertex(3))
+    G.connect(G.vertex(3), G.vertex(4))
+    G.connect(G.vertex(3), G.vertex(5))
+    G.connect(G.vertex(4), G.vertex(5))
+    
