@@ -60,15 +60,16 @@ class Graph:
         if len(values) != N:values = [i for i in range(N)]
         self.V = [Vertex(i, values[i]) for i in range(N)]
 
-    def connect(self, v, w):
+    def connect(self, v, w, weight=1):
         """Connects two vertices with an edge
 
         Args:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
+        if not self.is_oriented:weight = 1
         if self.is_multigraph or (not w in v.neighbors and not w == v):
-            edge = Edge(v, w, self.is_oriented, len(self.E))
+            edge = Edge(v, w, self.is_oriented, len(self.E), weight)
             self.E.append(edge)
             v.E.append(edge)
             if not self.is_oriented:w.E.append(edge)
