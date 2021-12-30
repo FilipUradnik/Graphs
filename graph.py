@@ -67,7 +67,7 @@ class Graph:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
-        if self.is_multigraph or (not w in v.neighbors() and not w == v):
+        if self.is_multigraph or (not w in v.neighbors and not w == v):
             edge = Edge(v, w, self.is_oriented, len(self.E))
             self.E.append(edge)
             v.E.append(edge)
