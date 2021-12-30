@@ -1,7 +1,34 @@
 from queue import Queue
 
+class Edge:
+
+    def __init__(self, v, w, oriented, index, weight=1):
+        self.connected = True
+        self.index = index
+        self.weight = weight
+        self.v = v
+        self.w = w
+        self.oriented = oriented
+
+    def forward(self, v):
+        if self.v == v:return self.w
+        elif self.oriented: return None
+        else:return self.v
+
+    def backward(self, v):
+        if self.w == v:return self.v
+        elif self.oriented: return None
+        else:return self.w
 
 class Vertex:
+    
+    def __init__(self, index, value):
+        self.index = index
+        self.value = value
+        self.E = []
+        self.distance = None
+        self.component = None
+
     def __hash__(self):
         return hash(self.index)
 
@@ -19,20 +46,19 @@ class Vertex:
     def __repr__(self):
         return "Vertex(" + str(self.index) + ")"
 
-    def __init__(self, index):
-        self.index = index
-        self.E = []
-        self.distance = None
-
-    def connect(self, v):
-        if not v in self.E:
-            self.E.append(v)
-
+    @property
+    def neighbors(self):
+        return [edge.other(self.index) for edge in self.E if not edge is None]
 
 class Graph:
-    def __init__(self, N):
+    def __init__(self, N, values=[], multigraph=False, oriented=False, weighted=False):
         self.N = N
-        self.V = [Vertex(i) for i in range(N)]
+        self.E = []
+        self.is_multigraph = multigraph
+        self.is_oriented = oriented
+        self.is_weighted = weighted
+        if len(values) != N:values = [i for i in range(N)]
+        self.V = [Vertex(i, values[i]) for i in range(N)]
 
     def connect(self, v, w):
         """Connects two vertices with an edge
@@ -41,12 +67,14 @@ class Graph:
             v (Vertex): one end of the edge
             w (Vertex): one end of the edge
         """
-        v, w = self.vertex(v), self.vertex(w)
-        v.connect(w)
-        w.connect(v)
+        if self.is_multigraph or not w in v.neighbors():
+            edge = Edge(v, w, self.is_oriented, len(self.E))
+            self.E.append(edge)
+            v.E.append(edge)
+            if not self.is_oriented:w.E.append(edge)
 
-    def vertex(self, v):
-        """gets a Vertex object with a given index
+    def vertex(self, index=None, value=None):
+        """gets a Vertex object with a given index or value
 
         Args:
             v (int): Index of the vertex
@@ -54,9 +82,9 @@ class Graph:
         Returns:
             Vertex: Vertex with the given index
         """
-        if not isinstance(v, Vertex):
-            v = self.V[v]
-        return v
+        if index is None and value is None:return None
+
+        if not index is None:return self.V[index]
 
     def get_neighbors(self, v):
         """Returns neighbors of a given vertex
@@ -67,10 +95,9 @@ class Graph:
         Returns:
             list: A list of vertices neighboring v
         """
-        v = self.vertex(v)
-        return self.V[v.index].E.copy()
+        return 
 
-    def dfs(self, v=0, past=None):
+    def dfs(self, v=None, past=None):
         """Depth first search (generator)
 
         Args:
@@ -79,12 +106,13 @@ class Graph:
         Yields:
             Vertex: Vertices of the component one by one
         """
-        v = self.vertex(v)
+        if v is None:v = self.V[0]
+
         if past is None:
             past = [None for _ in range(self.N)]
         yield v
         past[v.index] = True
-        for x in self.get_neighbors(v):
+        for x in v.neighbors:
             if past[x.index] is None:
                 self.dfs(x, past=past)
 
