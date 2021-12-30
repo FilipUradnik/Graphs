@@ -1,4 +1,4 @@
-from queue import Queue
+from queue import Queue, PriorityQueue
 
 class Edge:
 
@@ -11,11 +11,13 @@ class Edge:
         self.oriented = oriented
 
     def forward(self, v):
+        if not self.connected:return None
         if self.v == v:return self.w
         elif self.oriented: return None
         else:return self.v
 
     def backward(self, v):
+        if not self.connected:return None
         if self.w == v:return self.v
         elif self.oriented: return None
         else:return self.w
@@ -48,7 +50,11 @@ class Vertex:
 
     @property
     def neighbors(self):
-        return [edge.forward(self.index) for edge in self.E if not edge is None]
+        return [edge.forward(self.index) for edge in self.E if not edge.forward(self.index) is None]
+
+    @property
+    def backtracks(self):
+        return [edge.backward(self.index) for edge in self.E if not edge.backward(self.index) is None]
 
 class Graph:
     def __init__(self, N, values=[], multigraph=False, oriented=False, weighted=False):
@@ -72,7 +78,7 @@ class Graph:
             edge = Edge(v, w, self.is_oriented, len(self.E), weight)
             self.E.append(edge)
             v.E.append(edge)
-            if not self.is_oriented:w.E.append(edge)
+            w.E.append(edge)
 
     def vertex(self, index=None, value=None):
         """gets a Vertex object with a given index or value
@@ -175,7 +181,6 @@ class Graph:
         Returns:
             list: List of vertices through which the path leads
         """
-        v, u = self.vertex(v), self.vertex(u)
         d = self.find_distance(v, u)
         if d is None:
             return None
