@@ -210,7 +210,8 @@ class Graph:
             x.distance = None
         v.distance = 0
 
-        for w in self.bfs(v, lambda x: x.distance):
+        priority = (lambda x: x.distance) if self.is_weighted else None
+        for w in self.bfs(v, priority):
             if (not u is None) and w == u:
                 return w.distance
             for vertex, weight in w.neighbors(True):
