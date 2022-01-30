@@ -380,7 +380,7 @@ class Graph:
         vertex_map = [None for _ in range(self.N)]
         g = self.get_empty()
         for x in vertices:
-            vertex_map[vertices.index] = g.N
+            vertex_map[x.index] = g.N
             g.add_vertex(x.value)
 
         for edge in self.E:
@@ -461,3 +461,6 @@ if __name__ == '__main__':
     G.connect(G.vertex(4), G.vertex(2))
     print(G)
     print(G.get_spanning_tree())
+    G.add_vertex()
+    print('Components')
+    print(G.get_components())
