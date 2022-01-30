@@ -368,6 +368,64 @@ class Graph:
         
         return r
 
+    def get_induced_subgraph(self, vertices):
+        """creates an induced subgraph from a list of vertices
+
+        Args:
+            vertices (list): list of vertices
+
+        Returns:
+            Graph: Induced subgraph
+        """
+        vertex_map = [None for _ in range(self.N)]
+        g = self.get_empty()
+        for x in vertices:
+            vertex_map[vertices.index] = g.N
+            g.add_vertex(x.value)
+
+        for edge in self.E:
+            u, v, w = vertex_map[edge.v.index], vertex_map[edge.w.index], edge.weight
+            if u is None or v is None:pass
+            else:
+                u, v = g.vertex(index=u), g.vertex(index=v)
+                g.connect(u, v, w)
+        
+        return g
+    
+    def get_component(self, v, vertex_map=None):
+        """get a component containing v
+
+        Args:
+            v (Vertex): one vertex from the component
+            vertex_map (list, optional): all vertices' original indices will be set to 1. Defaults to None.
+
+        Returns:
+            Graph: The component
+        """
+        r = self.bfs(v)
+        if not vertex_map is None:
+            r = list(r)
+            for x in r:
+                vertex_map[x.index] = 1
+
+        return self.get_induced_subgraph(r)
+
+    def get_components(self):
+        """creates a list of all components
+
+        Returns:
+            list: a list containing Graphs - components of the parent graph
+        """
+        vertex_map = [None for _ in range(self.N)]
+
+        r = []
+        for i in range(len(vertex_map)):
+            if vertex_map[i] is None:
+                r.append(self.get_component(self.vertex(i), vertex_map))
+
+        return r
+
+            
 
 if __name__ == '__main__':
     G = Graph(6, weighted=True)
