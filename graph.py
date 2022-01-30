@@ -184,13 +184,13 @@ class Graph:
                 for y in self.dfs(x, past=past):
                     yield y
 
-    def bfs(self, v=None, priority=None):
+    def bfs(self, v=None, priority=None, edge=False):
         """Breadth first search (generator)
 
         Args:
             v (Vertex, optional): Starting point. Defaults to 0.
             priority (function, optional): priority function to be applied to the vertices. Forces PriorityQueue, slows down the algorithm
-
+            edge (bool, optional): option to also yield the neighbor from which the alg. got to that vertex and the distance to it
         Yields:
             Vertex: Vertices of the component one by one
         """
@@ -207,14 +207,25 @@ class Graph:
         past = [None for _ in range(self.N)]
         past[v.index] = True
 
+        if edge:
+            origin = [None for _ in range(self.N)]
+            weight = [None for _ in range(self.N)]
+
         while not queue.empty():
             v = queue.get()
             if not priority is None:
                 v = v[1]
-            yield v
-            for x in v.neighbors():
+            
+            if edge:yield v, origin[v.index], weight[v.distance]
+            else:yield v
+            
+            for x, d in v.neighbors(distance=True):
                 if not past[x.index]:
                     past[x.index] = True
+
+                    if edge and (weight[x.index] is None or weight[x.index] > d):
+                        origin[x.index] = v
+                        weight[x.index] = d
 
                     if priority is None:
                         queue.put(x)
@@ -257,7 +268,8 @@ class Graph:
         if d is None:
             return None
 
-        r = Graph(1, [u.value], multigraph=self.is_multigraph, oriented=self.is_oriented, weighted=self.is_weighted)
+        r = self.get_empty()
+        r.add_vertex(u.value)
         n = 1
         while v != u:
             # only choose from those neighbors, whose paths are optimal
@@ -267,10 +279,10 @@ class Graph:
 
             #add the new vertex to the path and connect it with the last one
             r.add_vertex(u.value)
-            r.connect(r.vertex(index=n-1), r.vertex(index=n), weight=w)
+            r.connect(r.vertex(index=n), r.vertex(index=n-1), weight=w)
             n += 1
 
-        return r[::-1]
+        return r
 
     def export_graph_data(self):
         """exports graph to JSON
@@ -327,6 +339,35 @@ class Graph:
         self.N += 1
         self.V.append(Vertex(self.N-1, value))
 
+    def get_empty(self):
+        return Graph(0, multigraph=self.is_multigraph, oriented=self.is_oriented, weighted=self.is_weighted)
+
+    def get_spanning_tree(self, v=None, minimal=False):
+        """returns a spanning tree
+        for disconnected graphs, it finds a spanning tree of a connected subgraph containing v.
+
+        Args:
+            v (Vertex, optional): Starting vertex of the algorithm. Defaults to None.
+        
+        Returns:
+            Graph: The spanning tree
+        """
+        priority = (lambda x: x.distance) if (self.is_weighted and minimal) else None
+        generator = self.bfs(v, priority, edge=True)
+
+        r = self.get_empty()
+        vertex_map = [None for _ in range(self.N)]
+        for vertex, starting, weight in generator:
+            r.add_vertex(vertex.value)
+            vertex_map[vertex.index] = r.N - 1
+            if not starting is None:
+                r.connect(
+                    r.vertex(vertex_map[starting.index]), 
+                    r.vertex(vertex_map[vertex.index]), 
+                    weight)
+        
+        return r
+
 
 if __name__ == '__main__':
     G = Graph(6, weighted=True)
@@ -357,3 +398,8 @@ if __name__ == '__main__':
     H = Graph(0)
     H.import_graph_data(G.export_graph_data())
     print(G.export_graph_data() == H.export_graph_data())
+    print()
+    print("Spanning Tree")
+    G.connect(G.vertex(4), G.vertex(2))
+    print(G)
+    print(G.get_spanning_tree())
