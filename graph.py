@@ -16,6 +16,14 @@ class Edge:
             return "Edge(x)"
         return f"{self.weight}-Edge({self.v.index}, {self.w.index})"
 
+    def visualize(self):
+        r = str(self.v.value) + " "
+        if self.weight != 1:r += f"-({self.weight})-"
+        else:r += "---"
+        if self.oriented:r += ">"
+        r += " " + str(self.w.value)
+        return r
+
     def forward(self, v):
         """returns a second end of the edge
         if oriented - it returns the edge only if it's in the direction of the edge
@@ -108,7 +116,7 @@ class Vertex:
 
 
 class Graph:
-    def __init__(self, N, values=[], multigraph=False, oriented=False, weighted=False):
+    def __init__(self, N=0, values=[], multigraph=False, oriented=False, weighted=False):
         self.N = N
         self.E = []
         self.is_multigraph = multigraph
