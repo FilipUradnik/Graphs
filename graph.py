@@ -17,6 +17,16 @@ class Edge:
         return f"{self.weight}-Edge({self.v.index}, {self.w.index})"
 
     def forward(self, v):
+        """returns a second end of the edge
+        if oriented - it returns the edge only if it's in the direction of the edge
+
+        Args:
+            v (Vertex): one end of the edge
+
+        Returns:
+            Vertex: the other end of the edge
+            None: if the edge is disconnected or the graph is oriented and you're trying to go against the direction of the edge
+        """
         if not self.connected:
             return None
         if self.v == v:
@@ -27,6 +37,16 @@ class Edge:
             return self.v
 
     def backward(self, v):
+        """returns a second end of the edge
+        if oriented - it returns the edge only if it's against the direction of the edge
+
+        Args:
+            v (Vertex): one end of the edge
+
+        Returns:
+            Vertex: the other end of the edge
+            None: if the edge is disconnected or the graph is oriented and you're trying to go in the direction of the edge
+        """
         if not self.connected:
             return None
         if self.w == v:
@@ -37,6 +57,11 @@ class Edge:
             return self.w
 
     def export(self):
+        """export all important details about the edge
+
+        Returns:
+            dict: the exported data
+        """
         return {
             "weight": self.weight,
             "v": self.v.index,
@@ -164,7 +189,7 @@ class Graph:
 
         Args:
             v (Vertex, optional): Starting point. Defaults to 0.
-            queue (Queue-like, optional): Custom Queue-like object, for example PriorityQueue. Defaults to Python Queue.
+            priority (function, optional): priority function to be applied to the vertices. Forces PriorityQueue, slows down the algorithm
 
         Yields:
             Vertex: Vertices of the component one by one
@@ -243,6 +268,11 @@ class Graph:
         return r[::-1]
 
     def export_graph_data(self):
+        """exports graph to JSON
+
+        Returns:
+            dict: everything important about the graph
+        """
         parameters = {
             "N": self.N,
             "is_weighted": self.is_weighted,
@@ -254,6 +284,14 @@ class Graph:
         return {"parameters": parameters, "vertices": vertices, "edges": edges}
 
     def import_graph_data(self, data):
+        """imports graph from exported JSON
+
+        Args:
+            data (dict): graph data
+
+        Raises:
+            Exception: the data is invalid
+        """
         if "parameters" in data.keys():
             parameters = data["parameters"]
             if "N" in parameters.keys():
@@ -267,7 +305,7 @@ class Graph:
 
         if "vertices" in data.keys():
             if self.N != len(data["vertices"]):
-                raise Exception
+                raise Exception("invalid number of vertices")
             self.V = [Vertex(i, data["vertices"][i]) for i in range(self.N)]
 
             if "edges" in data.keys():
@@ -277,7 +315,7 @@ class Graph:
                                  self.vertex(i["w"]), i["weight"])
 
         elif "edges" in data.keys():
-            raise Exception
+            raise Exception("found edges, haven't found vertices")
 
 
 if __name__ == '__main__':
