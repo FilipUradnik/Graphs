@@ -257,13 +257,18 @@ class Graph:
         if d is None:
             return None
 
-        r = [u]
+        r = Graph(1, [u.value], multigraph=self.is_multigraph, oriented=self.is_oriented, weighted=self.is_weighted)
+        n = 1
         while v != u:
             # only choose from those neighbors, whose paths are optimal
-            u = min([x[0] for x in u.backtracks(True) if u.distance -
-                    x[0].distance == x[1]], key=lambda x: x.distance)
+            u, w = min([x for x in u.backtracks(True) if u.distance -
+                    x[0].distance == x[1]], key=lambda x: x[0].distance)
             d = u.distance
-            r.append(u)
+
+            #add the new vertex to the path and connect it with the last one
+            r.add_vertex(u.value)
+            r.connect(r.vertex(index=n-1), r.vertex(index=n), weight=w)
+            n += 1
 
         return r[::-1]
 
@@ -316,6 +321,11 @@ class Graph:
 
         elif "edges" in data.keys():
             raise Exception("found edges, haven't found vertices")
+
+    def add_vertex(self, value=None):
+        if value is None:value = self.N
+        self.N += 1
+        self.V.append(Vertex(self.N-1, value))
 
 
 if __name__ == '__main__':
