@@ -97,6 +97,15 @@ def find_distance(name, u, v):
     g = _get_graph(name)
     print(g.get_distance(g.vertex(u), g.vertex(v)))
 
+def find_path(name, u, v):
+    g = _get_graph(name)
+    path_graph = g.find_path(g.vertex(u), g.vertex(v))
+    
+    if path_graph is None: print("Path doesn't exist")
+    else:
+        for x in path_graph.bfs(path_graph.vertex(-1)):
+            print(f"Vertex {x.value}")
+
 # -------------------------------------------------------------------
 # MENU
 # -------------------------------------------------------------------
@@ -115,6 +124,7 @@ menu.add_commands([
     ["import_all dir_name",import_all, "import all files from a specified directory to memory (there cannot be any other files in the directory!)"],
     ["split_to_components name",split_to_components, "split a graph to components and save them to memory (the old graph will remain in memory, the components will be called [original_name]_component_[component_number]"],
     ["find_distance name index_of_start:int index_of_end:int",find_distance, "find a distance between two vertices (vertices are specified by their indices, for more info look at get_vertex_indices command)"],
+    ["find_path name index_of_start:int index_of_end:int",find_path, "find a shortest path between two vertices (vertices are specified by their indices, for more info look at get_vertex_indices command)"],
 ])
 
 while True:
