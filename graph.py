@@ -281,6 +281,9 @@ class Graph:
         r = self.get_empty()
         r.add_vertex(u.value)
         n = 1
+
+        if u.distance is None:return None
+
         while v != u:
             # only choose from those neighbors, whose paths are optimal
             u, w = min([x for x in u.backtracks(True) if (not x[0].distance is None) and u.distance -
