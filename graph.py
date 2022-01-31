@@ -162,7 +162,8 @@ class Graph:
         Returns:
             Vertex: Vertex with the given index
         """
-        if not index is None and index < self.N:
+        if not index is None and -self.N <= index < self.N:
+            index = index % self.N
             return self.V[index]
         if not value is None:
             for x in self.V:
