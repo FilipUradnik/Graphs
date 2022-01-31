@@ -106,7 +106,7 @@ menu = command_interface.Interface()
 menu.add_commands([
     ["list_graphs",list_graphs, "get a list of all graphs in memory"],
     ["print_graph name",print_graph, "prints a graph (as best as it can)"],
-    ["new_graph name number_of_vertices:int weighted:bool multigraph:bool oriented:bool values_in_vertices:bool",new_graph, "add a new graph to memory"],
+    ["new_graph name number_of_vertices:int weighted:bool multigraph:bool directed:bool values_in_vertices:bool",new_graph, "add a new graph to memory"],
     ["get_vertex_indices name",get_vertex_indices, "get list of vertices of a graph, along with their indices"],
     ["add_edge name starting_vertex_index:int end_vertex_index:int",add_edge, "creates a new edge in a graph, for weighted graphs you will be prompted for the weight as well"],
     ["import_graph name file_path",import_graph, "import a graph from a json file specified by file_path"],

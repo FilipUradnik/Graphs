@@ -3,13 +3,13 @@ from queue import Queue, PriorityQueue
 
 class Edge:
 
-    def __init__(self, v, w, oriented, index, weight=1):
+    def __init__(self, v, w, directed, index, weight=1):
         self.connected = True
         self.index = index
         self.weight = weight
         self.v = v
         self.w = w
-        self.oriented = oriented
+        self.directed = directed
 
     def __repr__(self):
         if not self.connected:
@@ -20,46 +20,46 @@ class Edge:
         r = str(self.v.value) + " "
         if self.weight != 1:r += f"-({self.weight})-"
         else:r += "---"
-        if self.oriented:r += ">"
+        if self.directed:r += ">"
         r += " " + str(self.w.value)
         return r
 
     def forward(self, v):
         """returns a second end of the edge
-        if oriented - it returns the edge only if it's in the direction of the edge
+        if directed - it returns the edge only if it's in the direction of the edge
 
         Args:
             v (Vertex): one end of the edge
 
         Returns:
             Vertex: the other end of the edge
-            None: if the edge is disconnected or the graph is oriented and you're trying to go against the direction of the edge
+            None: if the edge is disconnected or the graph is directed and you're trying to go against the direction of the edge
         """
         if not self.connected:
             return None
         if self.v == v:
             return self.w
-        elif self.oriented:
+        elif self.directed:
             return None
         else:
             return self.v
 
     def backward(self, v):
         """returns a second end of the edge
-        if oriented - it returns the edge only if it's against the direction of the edge
+        if directed - it returns the edge only if it's against the direction of the edge
 
         Args:
             v (Vertex): one end of the edge
 
         Returns:
             Vertex: the other end of the edge
-            None: if the edge is disconnected or the graph is oriented and you're trying to go in the direction of the edge
+            None: if the edge is disconnected or the graph is directed and you're trying to go in the direction of the edge
         """
         if not self.connected:
             return None
         if self.w == v:
             return self.v
-        elif self.oriented:
+        elif self.directed:
             return None
         else:
             return self.w
@@ -116,11 +116,11 @@ class Vertex:
 
 
 class Graph:
-    def __init__(self, N=0, values=[], multigraph=False, oriented=False, weighted=False):
+    def __init__(self, N=0, values=[], multigraph=False, directed=False, weighted=False):
         self.N = N
         self.E = []
         self.is_multigraph = multigraph
-        self.is_oriented = oriented
+        self.is_directed = directed
         self.is_weighted = weighted
         if len(values) != N:
             values = [i for i in range(N)]
@@ -147,8 +147,8 @@ class Graph:
         """
         if not self.is_weighted:
             weight = 1
-        if self.is_multigraph or (not w in v.neighbors() and not w == v):
-            edge = Edge(v, w, self.is_oriented, len(self.E), weight)
+        if self.is_multigraph or (not w in v.neighbors() and not v in w.neighbors() and not w == v):
+            edge = Edge(v, w, self.is_directed, len(self.E), weight)
             self.E.append(edge)
             v.E.append(edge)
             w.E.append(edge)
@@ -181,6 +181,7 @@ class Graph:
         Yields:
             Vertex: Vertices of the component one by one
         """
+        if self.N == 0: raise Exception("No vertices to go through")
         if v is None:
             v = self.V[0]
 
@@ -303,7 +304,7 @@ class Graph:
             "N": self.N,
             "is_weighted": self.is_weighted,
             "is_multigraph": self.is_multigraph,
-            "is_oriented": self.is_oriented
+            "is_directed": self.is_directed
         }
         vertices = [v.value for v in self.V]
         edges = [e.export() for e in self.E if e.connected]
@@ -326,8 +327,8 @@ class Graph:
                 self.is_weighted = parameters["is_weighted"]
             if "is_multigraph" in parameters.keys():
                 self.is_multigraph = parameters["is_multigraph"]
-            if "is_oriented" in parameters.keys():
-                self.is_oriented = parameters["is_oriented"]
+            if "is_directed" in parameters.keys():
+                self.is_directed = parameters["is_directed"]
 
         if "vertices" in data.keys():
             if self.N != len(data["vertices"]):
@@ -345,11 +346,11 @@ class Graph:
 
     def add_vertex(self, value=None):
         if value is None:value = self.N
+        self.V.append(Vertex(self.N, value))
         self.N += 1
-        self.V.append(Vertex(self.N-1, value))
 
     def get_empty(self):
-        return Graph(0, multigraph=self.is_multigraph, oriented=self.is_oriented, weighted=self.is_weighted)
+        return Graph(0, multigraph=self.is_multigraph, directed=self.is_directed, weighted=self.is_weighted)
 
     def get_spanning_tree(self, v=None, minimal=False):
         """returns a spanning tree

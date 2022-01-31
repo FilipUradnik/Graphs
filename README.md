@@ -1,7 +1,7 @@
 # Graphs
 This is a package enabling users to do basic operations with graphs.
 ## Graph requirements
-This package supports all sorts of graphs, including weighted graphs, multigraphs and oriented graphs. A drawback to that is that some implemented algorithms could be more efficient if they were specified only for non-multigraphs, for example. 
+This package supports all sorts of graphs, including weighted graphs, multigraphs and directed graphs. A drawback to that is that some implemented algorithms could be more efficient if they were specified only for non-multigraphs, for example. 
 
 What I'm saying is, this isn't meant to handle huge graphs super quickly (for start, it's written in Python). 
 
