@@ -355,9 +355,10 @@ class Graph:
     def get_spanning_tree(self, v=None, minimal=False):
         """returns a spanning tree
         for disconnected graphs, it finds a spanning tree of a connected subgraph containing v.
+        for directed, it finds spanning tree of a subgraph rooted in v.
 
         Args:
-            v (Vertex, optional): Starting vertex of the algorithm. Defaults to None.
+            v (Vertex, optional): Starting vertex of the algorithm. Defaults to the vertex with index 0.
         
         Returns:
             Graph: The spanning tree
