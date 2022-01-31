@@ -281,7 +281,7 @@ class Graph:
         n = 1
         while v != u:
             # only choose from those neighbors, whose paths are optimal
-            u, w = min([x for x in u.backtracks(True) if (not x.distance is None) and u.distance -
+            u, w = min([x for x in u.backtracks(True) if (not x[0].distance is None) and u.distance -
                     x[0].distance == x[1]], key=lambda x: x[0].distance)
             d = u.distance
 
