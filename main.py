@@ -29,6 +29,8 @@ def new_graph(name, N, we, mul, ori, vals):
     g = graph.Graph(N, v, mul, ori, we)
     
     _save_graph(name, g)
+    print(f"Graph {name} created successfully!")
+    print("To see the graph, use command print_graph [graph_name]")
     print("To add edges, use command add_edge [graph_name] [starting_vertex_index] [ending_vertex_index]")
 
 def add_edge(name, v1, v2):
