@@ -14,7 +14,7 @@ class Edge:
     def __repr__(self):
         if not self.connected:
             return "Edge(x)"
-        return f"{self.weight}-Edge({self.v.index}, {self.w.index})"
+        return f"{self.weight}-Edge({self.v.value}, {self.w.value})"
 
     def visualize(self):
         r = str(self.v.value) + " "
