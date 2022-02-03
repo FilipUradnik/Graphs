@@ -33,7 +33,7 @@ Stores information about an edge, including weight and the order of vertices, ev
 
 You can, in principle, force an edge of a non-weighted graph to have a different weight than one, but it is not advised because when finding the shortest path, the weight will not be taken into account if the overall graph's `is_weighted` attribute is set to `False`. Similarly, you can force just one edge of a graph to be directed, by setting its `directed` attribute. 
 
-The `forward` and `backward` functions work identically when the graph is not directed, and when it is, they only allow movement in one direction.
+The `forward` and `backward` functions take as an argument a vertex - one end of the edge. They return the other vertex. When the graph is directed, `forward` returns the vertex only if moving from the input vertex to the output vertex would be in the direction of the edge (ie. it would be possible to use the edge to go from the input vertex to the output vertex). `backward` returns it only if it would be against the direction of the edge.
 
 ### Vertex
 
@@ -58,10 +58,20 @@ Vertices CANNOT be removed from the graph. If you want to remove an edge, do so 
 
 In `dfs` you can specify `past`, which is a list of length `N`, where the algorithm will store `True` for every vertex it yields. This is an inner feature needed for the functioning of the algorithm, not recommended to use, but might come in handy.
 
-The `find_distance` function uses the Dijkstra's algorithm (with PriorityQueue, or normal Queue for non-oriented graphs) and sets the `distance` attribute of each vertex to either the distance from starting vertex, or `None`. `find_path` then uses backtracking to find the shortest path and returns it as a graph (if you need a set of vertices, use `bfs` on the new graph from the starting vertex).
+The `find_distance` function uses the Dijkstra's algorithm (with PriorityQueue, or normal Queue for non-oriented graphs) and sets the `distance` attribute of each vertex to either the distance from starting vertex, or `None`. `find_path` then uses backtracking to find the shortest path and returns it as a graph (it creates a graph to preserve the edges lengths, if you need a set of vertices, use `bfs` on the new graph from the starting vertex).
 
 The `export_graph_data` and `import_graph_data` functions convert the graph to/from a nice human-readable JSON format. 
 
-The `get_component`, `get_components`, `get_spanning_tree` and `get_induced_subgraph` all create various subgraphs of the original graph. For more info, look inside the code or lookup the mathematical definitions of these types of subgraphs online. Beware that creating subgraphs changes the indices of the vertices, but it keeps their values, therefore it is best to not have more vertices with the same value, so you can tell them apart in the subgraph.
+#### Subgraphs
 
-Last but not least - the `get_empty` function returns an empty graph with the exact same parameters as the original (apart from the number of vertices)
+The `get_component`, `get_components`, `get_spanning_tree` and `get_induced_subgraph` all create various subgraphs of the original graph. 
+
+The `get_induced_subgraph` function takes a list of vertices, puts them into a new graph and it goes through all the edges and when both ends of the edge are in the new graph, it adds the edge.
+
+The `get_component` function uses `bfs` to get all the vertices connected to each other and then returns their induced subgraph. 
+
+The `get_components` function uses a vertex map - a list of length `N` (number of vertices in the graph) - passes it to `get_component`, there for every vertex from the bfs generator `vertex_map[vertex.index]` to `True`. `get_components` repeats that with another vertex that doesn't have `vertex_map[vertex.index] == True` until all the spots in vertex_map are set to `True` - then the whole graph has been searched and split to components.
+
+The `get_spanning_tree` function finds a spanning tree using bfs. For weighted graphs you can set the `minimum` argument to `True` to find the minimum spanning tree using the Prim–Jarník algorithm (similarly to Dijkstra's algorithm, it does so by using `PriorityQueue` instead of `Queue` in the bfs, effectively always choosing the edge with minimal weight)
+
+Finally the `get_empty` function returns an empty graph with the exact same parameters as the original (apart from the number of vertices, of course).
