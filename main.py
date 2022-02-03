@@ -17,7 +17,7 @@ def _save_graph(name, g, exclusive=False):
 
 def _get_graph(name):
     if name in GRAPHS.keys():return GRAPHS[name]
-    else:raise Exception("Graph Not Found")
+    else:raise KeyError("Graph Not Found")
 
 # -------------------------------------------------------------------
 # USER INPUT HANDLERS

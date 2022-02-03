@@ -335,7 +335,7 @@ class Graph:
 
         if "vertices" in data.keys():
             if self.N != len(data["vertices"]):
-                raise Exception("invalid number of vertices")
+                raise ValueError("invalid number of vertices")
             self.V = [Vertex(i, data["vertices"][i]) for i in range(self.N)]
 
             if "edges" in data.keys():
@@ -345,7 +345,7 @@ class Graph:
                                  self.vertex(i["w"]), i["weight"])
 
         elif "edges" in data.keys():
-            raise Exception("found edges, haven't found vertices")
+            raise ValueError("found edges, haven't found vertices")
 
     def add_vertex(self, value=None):
         if value is None:value = self.N
