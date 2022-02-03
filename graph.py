@@ -157,10 +157,12 @@ class Graph:
         """gets a Vertex object with a given index or value
 
         Args:
-            v (int): Index of the vertex
+            (choose one)
+            index (int): Index of the vertex
+            value (any): Value in the vertex. If there are more vertices with the same value, returns the one with lower index.
 
         Returns:
-            Vertex: Vertex with the given index
+            Vertex: Vertex with the given index/value
         """
         if not index is None and -self.N <= index < self.N:
             index = index % self.N
@@ -348,6 +350,11 @@ class Graph:
             raise ValueError("found edges, haven't found vertices")
 
     def add_vertex(self, value=None):
+        """Adds a vertex to the current graph
+
+        Args:
+            value (optional): Value set in the new vertex. Defaults to its index.
+        """
         if value is None:value = self.N
         self.V.append(Vertex(self.N, value))
         self.N += 1
@@ -355,18 +362,19 @@ class Graph:
     def get_empty(self):
         return Graph(0, multigraph=self.is_multigraph, directed=self.is_directed, weighted=self.is_weighted)
 
-    def get_spanning_tree(self, v=None, minimal=False):
+    def get_spanning_tree(self, v=None, minimum=False):
         """returns a spanning tree
         for disconnected graphs, it finds a spanning tree of a connected subgraph containing v.
         for directed, it finds spanning tree of a subgraph rooted in v.
 
         Args:
             v (Vertex, optional): Starting vertex of the algorithm. Defaults to the vertex with index 0.
+            minimum (bool, optional): For weighted graphs only. Sets whether the spanning tree should be minimum. Defaults to False.
         
         Returns:
             Graph: The spanning tree
         """
-        priority = (lambda x: x.distance) if (self.is_weighted and minimal) else None
+        priority = (lambda x: x.distance) if (self.is_weighted and minimum) else None
         generator = self.bfs(v, priority, edge=True)
 
         r = self.get_empty()
@@ -393,6 +401,9 @@ class Graph:
         """
         vertex_map = [None for _ in range(self.N)]
         g = self.get_empty()
+
+        # in g, the vertices get new indices
+        # the vertex map says which original indices correspond to which new indices in g
         for x in vertices:
             vertex_map[x.index] = g.N
             g.add_vertex(x.value)
