@@ -16,14 +16,16 @@ What I'm saying is, this isn't meant to handle huge graphs super quickly (for st
 * Finding a spanning tree to a graph (minimal spanning tree in weighted graphs)
 
 ## Command-line testing interface
-You can try the package out or test it by running the command-line interface. You do that by running `main.py` with at least Python 3.9 (older versions not tested).
+You can try the package out or test it by running the command-line interface. You do that by running `main.py` with at least Python 3.9.
 
-There is a menu with a `HELP` command included, there you can find a description to all the commands.
+When you run `main.py`, you will see a menu of commands. You can run a command by typing its number or its name and pressing enter. You will then be asked to type in its parameters. 
+
+There is a `HELP` command, which takes a command name as a parameter. It can give you a description of all the commands.
 
 ## Help
 if you're running the command-line interface, use the `HELP` command. If you're implementing it into your own project, read the module description written below, or look in the main source code (graph.py). Each function has a detailed Docstring explaining what it does. 
 
-In case you still run into issues, you can open a new issue on Github or you can message me at filip.uradnik9@gmail.com
+In case you still run into issues, you can open a new issue on Github.
 
 ## Module description
 
